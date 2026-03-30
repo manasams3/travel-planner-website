@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Travel Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--navy:#05203c;--navy-mid:#113a65;--blue:#0770e3;--blue-h:#0557b0;--white:#fff;--gray:#6b7280;--border:#d1d5db;--pink:#e3006b;--card:#0d2b4a}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);min-height:200vh}
+
+    /* FADE IN ON SCROLL */
+    .fi{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+    .fi.show{opacity:1;transform:none}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(5,32,60,.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);transition:box-shadow .3s}
+    nav.sc{box-shadow:0 4px 24px rgba(0,0,0,.4)}
+    .logo{font-size:22px;font-weight:700;letter-spacing:-.5px}.logo span{color:#00b9f1}
+    .nr{display:flex;align-items:center;gap:20px;font-size:14px}
+    .nr a{color:#fff;text-decoration:none;font-weight:500}
+    .ni{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .li{font-weight:700;cursor:pointer}
+
+    /* HERO */
+    .hero{padding:40px 32px 32px}
+
+    /* TABS */
+    .tabs{display:flex;gap:8px;margin-bottom:24px}
+    .tab{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:15px;font-weight:500;cursor:pointer;position:relative;transition:background .15s,border-color .15s}
+    .tab:hover{background:rgba(255,255,255,.08)}
+    .tab.on{background:var(--blue);border-color:var(--blue)}
+    .bdg{position:absolute;top:-10px;right:-6px;background:var(--pink);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px}
+    h1{font-size:28px;font-weight:700;margin-bottom:24px}
+
+    /* TRIP TYPE PILLS */
+    .tt{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .pill{padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+    .pill:hover{background:rgba(255,255,255,.1)}
+    .pill.on{background:#fff;color:var(--navy);border-color:#fff;font-weight:700}
+
+    /* SEARCH BAR */
+    .sb{display:flex;align-items:stretch;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.3);position:relative;overflow:visible}
+    .sf{display:flex;flex-direction:column;justify-content:center;padding:14px 20px;flex:1;border-right:1px solid var(--border);cursor:pointer;transition:background .1s;min-width:0;position:relative}
+    .sf:hover{background:#f0f4ff}
+    .sf label{font-size:11px;font-weight:600;color:var(--gray);margin-bottom:3px;pointer-events:none}
+    .sf input,.fv{border:none;outline:none;font-size:15px;font-weight:500;color:#1a1a2e;background:transparent;width:100%}
+    .fv.ph{color:#9ca3af;font-weight:400}
+
+    /* AUTOCOMPLETE */
+    .acl{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:280px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:400;overflow:hidden;border:1px solid #e5e7eb}
+    .acl.op{display:block}
+    .aci{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .1s}
+    .aci:hover{background:#f0f4ff}
+    .aci:not(:last-child){border-bottom:1px solid #f3f4f6}
+    .aic{width:34px;height:34px;border-radius:8px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .aim{font-size:14px;font-weight:600;color:#1a1a2e}
+    .ais{font-size:12px;color:#6b7280;margin-top:1px}
+    .aico{margin-left:auto;font-size:12px;font-weight:700;color:#6b7280;background:#f3f4f6;padding:3px 8px;border-radius:6px;flex-shrink:0}
+    .aclbl{font-size:11px;font-weight:700;color:#9ca3af;padding:8px 16px 4px;text-transform:uppercase;letter-spacing:.5px}
+
+    /* SWAP */
+    .sw{width:38px;height:38px;border-radius:50%;border:2px solid var(--navy);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;z-index:2;margin:auto -19px;flex-shrink:0;transition:background .15s}
+    .sw:hover{background:#e8f0fe}
+    .ftw{display:flex;flex:2;position:relative;align-items:stretch}
+
+    .sbtn{background:var(--blue);color:#fff;border:none;padding:0 32px;font-size:16px;font-weight:700;cursor:pointer;border-radius:0 12px 12px 0;transition:background .15s;white-space:nowrap}
+    .sbtn:hover{background:var(--blue-h)}
+
+    /* Return field */
+    .rf{transition:max-width .3s,opacity .3s,padding .3s;max-width:220px}
+    .rf.hide{max-width:0;opacity:0;padding-left:0;padding-right:0;overflow:hidden;border:none;pointer-events:none}
+
+    /* OPTIONS */
+    .opts{display:flex;gap:24px;margin-top:12px;align-items:center;flex-wrap:wrap}
+    .cl{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+    .cl input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+    .sp{flex:1}
+
+    /* QUICK LINKS */
+    .ql{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:40px 32px}
+    .qc{background:var(--card);border-radius:14px;padding:22px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:background .15s,transform .15s;border:1px solid rgba(255,255,255,.06)}
+    .qc:hover{background:var(--navy-mid);transform:translateY(-2px)}
+    .qci{width:28px;height:28px;opacity:.9;flex-shrink:0}
+    .qc span{font-size:17px;font-weight:600}
+
+    /* DESTINATIONS */
+    .dest{padding:40px 32px}
+    .st{font-size:22px;font-weight:700;margin-bottom:20px}
+    .dg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .dc{background:var(--card);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,.06)}
+    .dc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+    .di{width:100%;height:120px;background:linear-gradient(135deg,#1a4a8a,#0770e3);display:flex;align-items:center;justify-content:center;font-size:42px}
+    .dn{padding:12px 16px}
+    .dc-city{font-size:15px;font-weight:700}
+    .dc-country{font-size:12px;color:#93c5fd;margin-top:2px}
+    .dc-price{font-size:13px;font-weight:600;color:#34d399;margin-top:6px}
+
+    footer{margin-top:60px;padding:28px 32px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.45);font-size:13px;text-align:center}
+    svg{display:inline-block}
+
+    @media(max-width:900px){.dg{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){
+      .sb{flex-direction:column;border-radius:12px}
+      .sf{border-right:none;border-bottom:1px solid var(--border)}
+      .ftw{flex-direction:column}
+      .sw{display:none}
+      .sbtn{border-radius:0 0 12px 12px;padding:16px}
+      .ql{grid-template-columns:1fr}
+      nav{padding:12px 16px}
+      .hero,.ql,.dest{padding-left:16px;padding-right:16px}
+    }
+    @media(max-width:480px){.dg{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo">Travel<span>Planner</span></div>
+  <div class="nr">
+    <a href="#">Help</a>
+    <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+    <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+    <span class="ni"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="rgba(255,255,255,0.15)"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M4.5 19.5c0-4 3.4-7 7.5-7s7.5 3 7.5 7" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
+    <span class="li">Log in</span>
+  </div>
+</nav>
+
+<section class="hero fi show">
+  <div class="tabs">
+    <button class="tab on" onclick="setTab(this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg> Flights</button>
+    <button class="tab" onclick="setTab(this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M2 12V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6"/><line x1="2" y1="20" x2="22" y2="20"/></svg> Hotels</button>
+    <button class="tab" onclick="setTab(this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg> Cars</button>
+    <button class="tab" onclick="setTab(this)" style="position:relative"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 14c0-4-3-7-5-9-2 2-5 5-5 9"/><line x1="12" y1="5" x2="12" y2="22"/><path d="M8 22s1-3 4-3 4 3 4 3"/></svg> Packages<span class="bdg">New</span></button>
+  </div>
+
+  <h1>Millions of cheap flights. One simple search.</h1>
+
+  <!-- TRIP TYPE PILLS (NEW) -->
+  <div class="tt">
+    <button class="pill" onclick="setTrip(this,'one-way')">One-way</button>
+    <button class="pill on" onclick="setTrip(this,'return')">Return</button>
+    <button class="pill" onclick="setTrip(this,'tofro')">To &amp; Fro</button>
+    <button class="pill" onclick="setTrip(this,'multi')">Multi-city</button>
+  </div>
+
+  <div class="sb">
+    <div class="ftw">
+      <div class="sf">
+        <label>From</label>
+        <input type="text" id="ff" value="Frankfurt am Main (FRA)" autocomplete="off"
+          oninput="suggest('ff','fl',this.value)" onfocus="suggest('ff','fl',this.value)" onblur="hide('fl')"/>
+        <div class="acl" id="fl"></div>
+      </div>
+      <button class="sw" onclick="swp()" title="Swap airports">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#05203c" stroke-width="2.2" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      </button>
+      <div class="sf">
+        <label>To</label>
+        <input type="text" id="tf" placeholder="Country, city or airport" autocomplete="off"
+          oninput="suggest('tf','tl',this.value)" onfocus="suggest('tf','tl',this.value)" onblur="hide('tl')"/>
+        <div class="acl" id="tl"></div>
+      </div>
+    </div>
+    <div class="sf" style="flex:1.2" onclick="this.querySelector('input').focus()">
+      <label>Depart</label>
+      <input type="date" id="dd" style="color:#9ca3af;font-weight:400"/>
+    </div>
+    <div class="sf rf" id="rfield" style="flex:1.2" onclick="this.querySelector('input').focus()">
+      <label>Return</label>
+      <input type="date" id="rd" style="color:#9ca3af;font-weight:400"/>
+    </div>
+    <div class="sf" style="flex:1.4">
+      <label>Travellers and cabin class</label>
+      <div class="fv">1 Adult, Economy</div>
+    </div>
+    <button class="sbtn">Search</button>
+  </div>
+
+  <div class="opts">
+    <label class="cl"><input type="checkbox"/> Add nearby airports (From)</label>
+    <label class="cl"><input type="checkbox"/> Add nearby airports (To)</label>
+    <div class="sp"></div>
+    <label class="cl"><input type="checkbox" checked/> Add a hotel</label>
+    <label class="cl"><input type="checkbox"/> Direct flights</label>
+  </div>
+</section>
+
+<section class="ql fi">
+  <div class="qc"><svg class="qci" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M2 12V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Hotels</span></div>
+  <div class="qc"><svg class="qci" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="10" width="22" height="9" rx="2"/><path d="M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg><span>Cars</span></div>
+  <div class="qc"><svg class="qci" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="3" x2="11" y2="19"/><path d="M3 11h16"/><path d="M5 6.5C7 8 9 8.5 11 8.5s4-.5 6-2"/><path d="M5 15.5C7 14 9 13.5 11 13.5s4 .5 6 2"/></svg><span>Explore everywhere</span></div>
+</section>
+
+<section class="dest fi">
+  <h2 class="st">Popular destinations from Frankfurt</h2>
+  <div class="dg">
+    <div class="dc fi"><div class="di">🗼</div><div class="dn"><div class="dc-city">Paris</div><div class="dc-country">France · CDG</div><div class="dc-price">From €49</div></div></div>
+    <div class="dc fi"><div class="di">🏛️</div><div class="dn"><div class="dc-city">Rome</div><div class="dc-country">Italy · FCO</div><div class="dc-price">From €59</div></div></div>
+    <div class="dc fi"><div class="di">🌅</div><div class="dn"><div class="dc-city">Barcelona</div><div class="dc-country">Spain · BCN</div><div class="dc-price">From €44</div></div></div>
+    <div class="dc fi"><div class="di">🎡</div><div class="dn"><div class="dc-city">London</div><div class="dc-country">UK · LHR</div><div class="dc-price">From €69</div></div></div>
+    <div class="dc fi"><div class="di">🏙️</div><div class="dn"><div class="dc-city">Dubai</div><div class="dc-country">UAE · DXB</div><div class="dc-price">From €299</div></div></div>
+    <div class="dc fi"><div class="di">🌸</div><div class="dn"><div class="dc-city">Tokyo</div><div class="dc-country">Japan · NRT</div><div class="dc-price">From €549</div></div></div>
+    <div class="dc fi"><div class="di">🗽</div><div class="dn"><div class="dc-city">New York</div><div class="dc-country">USA · JFK</div><div class="dc-price">From €399</div></div></div>
+    <div class="dc fi"><div class="di">🦁</div><div class="dn"><div class="dc-city">Nairobi</div><div class="dc-country">Kenya · NBO</div><div class="dc-price">From €489</div></div></div>
+  </div>
+</section>
+
+<footer class="fi">© 2026 TravelPlanner. All rights reserved. Prices are indicative and subject to availability.</footer>
+
+<script>
+const AP=[
+  {c:'Frankfurt',n:'Germany',k:'FRA',a:'Frankfurt Airport'},
+  {c:'Munich',n:'Germany',k:'MUC',a:'Munich Airport'},
+  {c:'Berlin',n:'Germany',k:'BER',a:'Berlin Brandenburg'},
+  {c:'Hamburg',n:'Germany',k:'HAM',a:'Hamburg Airport'},
+  {c:'Düsseldorf',n:'Germany',k:'DUS',a:'Düsseldorf Airport'},
+  {c:'Cologne',n:'Germany',k:'CGN',a:'Cologne Bonn Airport'},
+  {c:'Stuttgart',n:'Germany',k:'STR',a:'Stuttgart Airport'},
+  {c:'London',n:'United Kingdom',k:'LHR',a:'Heathrow Airport'},
+  {c:'London',n:'United Kingdom',k:'LGW',a:'Gatwick Airport'},
+  {c:'London',n:'United Kingdom',k:'STN',a:'Stansted Airport'},
+  {c:'Paris',n:'France',k:'CDG',a:'Charles de Gaulle'},
+  {c:'Paris',n:'France',k:'ORY',a:'Paris Orly'},
+  {c:'Amsterdam',n:'Netherlands',k:'AMS',a:'Schiphol Airport'},
+  {c:'Barcelona',n:'Spain',k:'BCN',a:'El Prat Airport'},
+  {c:'Madrid',n:'Spain',k:'MAD',a:'Barajas Airport'},
+  {c:'Rome',n:'Italy',k:'FCO',a:'Fiumicino Airport'},
+  {c:'Milan',n:'Italy',k:'MXP',a:'Malpensa Airport'},
+  {c:'Vienna',n:'Austria',k:'VIE',a:'Vienna Airport'},
+  {c:'Zurich',n:'Switzerland',k:'ZRH',a:'Zurich Airport'},
+  {c:'Brussels',n:'Belgium',k:'BRU',a:'Brussels Airport'},
+  {c:'Lisbon',n:'Portugal',k:'LIS',a:'Humberto Delgado'},
+  {c:'Athens',n:'Greece',k:'ATH',a:'Eleftherios Venizelos'},
+  {c:'Prague',n:'Czech Republic',k:'PRG',a:'Václav Havel Airport'},
+  {c:'Warsaw',n:'Poland',k:'WAW',a:'Chopin Airport'},
+  {c:'Budapest',n:'Hungary',k:'BUD',a:'Budapest Liszt Ferenc'},
+  {c:'Dubai',n:'UAE',k:'DXB',a:'Dubai International'},
+  {c:'Istanbul',n:'Turkey',k:'IST',a:'Istanbul Airport'},
+  {c:'New York',n:'USA',k:'JFK',a:'John F. Kennedy'},
+  {c:'New York',n:'USA',k:'EWR',a:'Newark Liberty'},
+  {c:'Los Angeles',n:'USA',k:'LAX',a:'LAX Airport'},
+  {c:'Miami',n:'USA',k:'MIA',a:'Miami International'},
+  {c:'Toronto',n:'Canada',k:'YYZ',a:'Pearson Airport'},
+  {c:'Tokyo',n:'Japan',k:'NRT',a:'Narita Airport'},
+  {c:'Singapore',n:'Singapore',k:'SIN',a:'Changi Airport'},
+  {c:'Bangkok',n:'Thailand',k:'BKK',a:'Suvarnabhumi Airport'},
+  {c:'Sydney',n:'Australia',k:'SYD',a:'Kingsford Smith'},
+  {c:'Nairobi',n:'Kenya',k:'NBO',a:'Jomo Kenyatta Airport'},
+  {c:'Cape Town',n:'South Africa',k:'CPT',a:'Cape Town Airport'},
+  {c:'Cairo',n:'Egypt',k:'CAI',a:'Cairo International'},
+];
+
+const planeIcon=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0770e3" stroke-width="2.2"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
+
+function suggest(iid,lid,q){
+  const list=document.getElementById(lid);
+  q=(q||'').trim().toLowerCase();
+  const res=q.length===0?AP.slice(0,6):AP.filter(a=>a.c.toLowerCase().includes(q)||a.n.toLowerCase().includes(q)||a.k.toLowerCase().includes(q)||a.a.toLowerCase().includes(q)).slice(0,7);
+  if(!res.length){list.classList.remove('op');return}
+  const lbl=q.length===0?'Popular airports':'Matching results';
+  list.innerHTML=`<div class="aclbl">${lbl}</div>`+res.map(a=>`
+    <div class="aci" onmousedown="pick('${iid}','${lid}','${a.c} (${a.k})')">
+      <div class="aic">${planeIcon}</div>
+      <div style="flex:1;min-width:0"><div class="aim">${a.c}</div><div class="ais">${a.a} · ${a.n}</div></div>
+      <span class="aico">${a.k}</span>
+    </div>`).join('');
+  list.classList.add('op');
+}
+function pick(iid,lid,v){document.getElementById(iid).value=v;document.getElementById(lid).classList.remove('op')}
+function hide(lid){setTimeout(()=>document.getElementById(lid).classList.remove('op'),200)}
+function swp(){const f=document.getElementById('ff'),t=document.getElementById('tf'),x=f.value;f.value=t.value||'';t.value=x}
+function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on')}
+function setTrip(el,type){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('rfield').classList.toggle('hide',type==='one-way');
+}
+document.querySelectorAll('input[type="date"]').forEach(i=>{
+  i.addEventListener('change',function(){this.style.color=this.value?'#1a1a2e':'#9ca3af';this.style.fontWeight=this.value?'500':'400'})
+});
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('sc',scrollY>10));
+const obs=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('show'),i*70);obs.unobserve(e.target)}})
+},{threshold:.1});
+document.querySelectorAll('.fi:not(.show)').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
